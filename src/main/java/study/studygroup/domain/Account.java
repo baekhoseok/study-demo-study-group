@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Setter @Getter @EqualsAndHashCode(of = "id")
@@ -24,7 +25,7 @@ public class Account {
 
     private boolean emailVerified;
 
-    private String emialCheckToken;
+    private String emailCheckToken;
 
     private LocalDateTime joinedAt;
 
@@ -50,4 +51,14 @@ public class Account {
     private boolean studyUpdatedByEmail;
 
     private boolean studyUpdatedByWeb;
+
+    public Account(String email, String nickname, String password) {
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+    }
+
+    public void generateEmailCheckToken() {
+        this.emailCheckToken = UUID.randomUUID().toString();
+    }
 }
