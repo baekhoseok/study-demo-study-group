@@ -3,18 +3,21 @@ package study.studygroup.account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.studygroup.domain.Account;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void processNewAccount(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateEmailCheckToken();
@@ -25,7 +28,7 @@ public class AccountService {
         Account account = Account.builder()
                 .email(signUpForm.getEmail())
                 .nickname(signUpForm.getNickname())
-                .password(signUpForm.getPassword()) //TODO encoding 해야함.
+                .password(passwordEncoder.encode(signUpForm.getPassword()))
                 .studyEnrollmentResultByWeb(true)
                 .studyCreatedByWeb(true)
                 .studyUpdatedByWeb(true)

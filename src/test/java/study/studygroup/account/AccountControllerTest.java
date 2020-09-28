@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
+import study.studygroup.domain.Account;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,16 +62,26 @@ class AccountControllerTest {
     @DisplayName("회원 가입 처리 - 입력값 정상")
     @Test
     public void signUpSubmit_with_correct_input() throws Exception {
+
+        String nickname = "hoseok";
+        String email = "baek22h@naver.com";
+        String password = "12341234";
+
         mockMvc.perform(post("/sign-up")
-                .param("nickname", "hoseok")
-                .param("email", "baek22h@naver.com")
-                .param("password", "12341234")
+                .param("nickname", nickname)
+                .param("email", email)
+                .param("password", password)
                 .with(csrf())
         )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
 
-        assertThat(accountRepository.existsByEmail("baek22h@naver.com")).isTrue();
+        Account account = accountRepository.findByEmail(email);
+
+        assertNotNull(account);
+        assertNotEquals(account.getPassword(), password);
+        assertThat(accountRepository.existsByEmail(email)).isTrue();
+        assertNotNull(account.getEmailCheckToken());
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }
 }
