@@ -9,9 +9,12 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import study.studygroup.domain.Account;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 
@@ -41,6 +44,8 @@ public class AccountController {
         }
         Account account = accountService.processNewAccount(signUpForm);
         accountService.login(account);
+
+        //화면 refresh 할때마다 submit 을 막기위해 redirect 를 해준다.
         return "redirect:/";
     }
 
@@ -58,13 +63,49 @@ public class AccountController {
             return view;
         }
 
-        account.completeSignUp();
-        accountService.login(account);
+        accountService.completeSignUp(account);
 
         model.addAttribute("numberOfUser", accountRepository.count());
         model.addAttribute("nickname", account.getNickname());
         return view;
     }
+
+    @GetMapping("/check-email")
+    public String checkEmail(@CurrentUser Account account, Model model) {
+        model.addAttribute("email", account.getEmail());
+        return "account/check-email";
+    }
+
+    @GetMapping("/resend-confirm-email")
+    public String resendConfirmEmail(@CurrentUser Account account, Model model) {
+        if (!account.canSendConfirmEmail()) {
+            model.addAttribute("error", "인증 이메일은 1시간에 한번만 전송 할 수 있습니다.");
+            model.addAttribute("email", account.getEmail());
+            return "account/check-email";
+        }
+        accountService.sendSignUpConfirmEmail(account);
+
+        //화면 refresh 할때마다 이메일 발송을 막기위해 redirect 를 해준다.
+        return "redirect:/";
+    }
+
+    @GetMapping("/profile/{username}")
+    public String profile(@CurrentUser Account account, @PathVariable("username") String username, Model model) {
+        Account findAccount = accountRepository.findByNickname(username);
+        if (findAccount == null) {
+            throw new IllegalArgumentException(username + "에 해당하는 사용자가 없습니다.");
+        }  
+        model.addAttribute("account", findAccount);
+        model.addAttribute("isOwner", account.equals(findAccount));
+        return "account/profile";
+    }
+
+    @GetMapping("/settings/profile")
+    public String setProfile(@CurrentUser Account account, Model model) {
+        model.addAttribute(account);
+        return "settings/profile";
+    }
+
 
 
 }

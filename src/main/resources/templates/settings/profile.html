@@ -28,7 +28,7 @@
                                    placeholder="간략한 소개를 부탁합니다." aria-describedby="bioHelp" required>
                             <small id="bioHelp" class="form-text text-muted">
                                 길지 않게 35자 이내로 입력하세요.
-                            </small>
+                            </small>  
                             <small class="form-text text-danger" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}">
                                 조금 길어요.
                             </small>
