@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.studygroup.domain.Account;
+import study.studygroup.settings.Profile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,4 +88,15 @@ public class AccountService implements UserDetailsService {
         account.completeSignUp();
         login(account);
     }
+
+    @Transactional
+    public void updateProfile(Account account, Profile profile) {
+        account.updateProfile(profile);
+        // TODO 프로필 이미지.
+        accountRepository.save(account);
+
+        // TODO 문제가 하나 더 남았습니다.
+    }
+
+
 }

@@ -2,6 +2,7 @@ package study.studygroup.domain;
 
 import lombok.*;
 import org.springframework.stereotype.Component;
+import study.studygroup.settings.Profile;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -76,5 +77,12 @@ public class Account {
 
     public boolean canSendConfirmEmail() {
         return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
+    }
+
+    public void updateProfile(Profile profile) {
+        this.bio = profile.getBio();
+        this.location = profile.getLocation();
+        this.occupation = profile.getOccupation();
+        this.url = profile.getUrl();
     }
 }

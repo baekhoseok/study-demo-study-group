@@ -33,7 +33,7 @@ public class AccountController {
 
     @GetMapping("/sign-up")
     public String signup(Model model) {
-        model.addAttribute(new SignUpForm());
+        model.addAttribute(new SignUpForm("백호석", "baek22h@naver.com", "12341234"));
         return "account/sign-up";
     }
 
@@ -100,11 +100,7 @@ public class AccountController {
         return "account/profile";
     }
 
-    @GetMapping("/settings/profile")
-    public String setProfile(@CurrentUser Account account, Model model) {
-        model.addAttribute(account);
-        return "settings/profile";
-    }
+
 
 
 
