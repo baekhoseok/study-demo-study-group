@@ -1,4 +1,4 @@
-package study.studygroup.settings;
+package study.studygroup.settings.form;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,10 +20,7 @@ public class Profile {
     @Length(max = 50)
     private String location;
 
-    public Profile(Account account) {
-        this.bio = account.getBio();
-        this.url = account.getUrl();
-        this.occupation = account.getOccupation();
-        this.location = account.getLocation();
-    }
+    private String profileImage;
+
+
 }

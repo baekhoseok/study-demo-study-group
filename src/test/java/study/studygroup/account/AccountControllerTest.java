@@ -11,7 +11,9 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import study.studygroup.WithAccount;
 import study.studygroup.domain.Account;
+import study.studygroup.settings.SettingsController;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -134,5 +136,41 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("numberOfUser"))
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(authenticated().withUsername("hoseok"));
+    }
+
+    @Test
+    @DisplayName("이메일로 로그인 페이지")
+    public void emailLogin_Page() throws Exception {
+        mockMvc.perform(get("/email-login"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/email-login"));
+    }
+
+    @Test
+    @DisplayName("이메일로 로그인 성공")
+    @WithAccount("hoseok")
+    public void updateNickname() throws Exception {
+        mockMvc.perform(post("/email-login")
+                .param("email", "hoseok@naver.com")
+                .with(csrf())
+        )
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/email-login"))
+                .andExpect(flash().attributeExists("message"));
+
+
+    }
+
+    @Test
+    @DisplayName("닉네임 변경 실패")
+    @WithAccount("hoseok")
+    public void updateNickname_Fail() throws Exception {
+        mockMvc.perform(post(SettingsController.SETTING_ACCOUNT_URL)
+                .param("nickname", "ul")
+                .with(csrf())
+        )
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTING_ACCOUNT_VIEW_NAME))
+                .andExpect(model().attributeExists("account"));
     }
 }

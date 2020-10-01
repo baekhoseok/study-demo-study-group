@@ -1,8 +1,6 @@
 package study.studygroup.domain;
 
 import lombok.*;
-import org.springframework.stereotype.Component;
-import study.studygroup.settings.Profile;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -43,15 +41,15 @@ public class Account {
 
     private boolean studyCreatedByEmail;
 
-    private boolean studyCreatedByWeb;
+    private boolean studyCreatedByWeb = true;
 
     private boolean studyEnrollmentResultByEmail;
 
-    private boolean studyEnrollmentResultByWeb;
+    private boolean studyEnrollmentResultByWeb = true;
 
     private boolean studyUpdatedByEmail;
 
-    private boolean studyUpdatedByWeb;
+    private boolean studyUpdatedByWeb = true;
 
     private LocalDateTime emailCheckTokenGeneratedAt;
 
@@ -79,10 +77,20 @@ public class Account {
         return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusHours(1));
     }
 
-    public void updateProfile(Profile profile) {
-        this.bio = profile.getBio();
-        this.location = profile.getLocation();
-        this.occupation = profile.getOccupation();
-        this.url = profile.getUrl();
-    }
+//    public void updateProfile(Profile profile) {
+//        this.bio = profile.getBio();
+//        this.location = profile.getLocation();
+//        this.occupation = profile.getOccupation();
+//        this.url = profile.getUrl();
+//        this.profileImage = profile.getProfileImage();
+//    }
+
+//    public void updateNotification(Notifications notifications) {
+//        this.studyCreatedByEmail = notifications.isStudyCreatedByEmail();
+//        this.studyCreatedByWeb = notifications.isStudyCreatedByWeb();
+//        this.studyEnrollmentResultByEmail = notifications.isStudyEnrollmentResultByEmail();
+//        this.studyEnrollmentResultByWeb = notifications.isStudyEnrollmentResultByWeb();
+//        this.studyUpdatedByEmail = notifications.isStudyUpdatedByEmail();
+//        this.studyUpdatedByWeb = notifications.isStudyUpdatedByWeb();
+//    }
 }
