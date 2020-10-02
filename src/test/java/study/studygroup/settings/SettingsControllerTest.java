@@ -1,5 +1,6 @@
 package study.studygroup.settings;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +18,12 @@ import study.studygroup.account.AccountRepository;
 import study.studygroup.account.AccountService;
 import study.studygroup.account.SignUpForm;
 import study.studygroup.domain.Account;
+import study.studygroup.domain.Tag;
+import study.studygroup.domain.Zone;
+import study.studygroup.settings.form.TagForm;
+import study.studygroup.settings.form.ZoneForm;
+import study.studygroup.tag.TagRepository;
+import study.studygroup.zone.ZoneRepository;
 
 import javax.swing.text.View;
 
@@ -30,22 +38,131 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class SettingsControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    AccountService accountService;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    @Autowired MockMvc mockMvc;
+    @Autowired AccountService accountService;
+    @Autowired AccountRepository accountRepository;
+    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired ObjectMapper objectMapper;
+    @Autowired TagRepository tagRepository;
+    @Autowired ZoneRepository zoneRepository;
 
 
     @AfterEach
     void afterEach() {
        accountRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("지역 설정 페이지")
+    @WithAccount("hoseok")
+    public void updateZones_Page() throws Exception {
+        mockMvc.perform(get(SettingsController.SETTING_ZONES_URL))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTING_ZONES_VIEW_NAME))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("zones"))
+                .andExpect(model().attributeExists("whitelist"));
+    }
+
+    @Test
+    @DisplayName("지역 추가 성공")
+    @WithAccount("hoseok")
+    public void addZone() throws Exception {
+//        Zone zone = Zone.builder().city("Seoul").localNameOfCity("서울").province("관악구").build();
+        ZoneForm zoneForm = new ZoneForm();
+        zoneForm.setZoneName("Seoul(서울특별시)/none");
+
+        mockMvc.perform(post(SettingsController.SETTING_ZONES_URL+"/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(zoneForm))
+                .with(csrf())
+        )
+                .andExpect(status().isOk());
+
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+
+        Account hoseok = accountRepository.findByNickname("hoseok");
+        assertTrue(hoseok.getZones().contains(zone) );
+    }
+
+    @Test
+    @DisplayName("지역 제거 성공")
+    @WithAccount("hoseok")
+    public void removeZone() throws Exception {
+        Zone zone = zoneRepository.findByCityAndProvince("Seoul", "none");
+
+        Account account = accountRepository.findByNickname("hoseok");
+        account.getZones().add(zone);
+
+        ZoneForm zoneForm = new ZoneForm();
+        zoneForm.setZoneName("Seoul(서울특별시)/none");
+
+        mockMvc.perform(post(SettingsController.SETTING_ZONES_URL+"/remove")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(zoneForm))
+                .with(csrf())
+        )
+                .andExpect(status().isOk());
+
+        Account hoseok = accountRepository.findByNickname("hoseok");
+        assertFalse(hoseok.getZones().contains(zone) );
+    }
+
+    @Test
+    @DisplayName("테그 변경 페이지")
+    @WithAccount("hoseok")
+    public void updateTag_Page() throws Exception {
+        mockMvc.perform(get(SettingsController.SETTING_TAGS_URL))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTING_TAGS_VIEW_NAME))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("tags"))
+                .andExpect(model().attributeExists("whitelist "));
+    }
+
+    @Test
+    @DisplayName("테그추가 성공")
+    @WithAccount("hoseok")
+    public void addTag() throws Exception {
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("spring");
+
+        mockMvc.perform(post(SettingsController.SETTING_TAGS_URL+"/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tagForm))
+                .with(csrf())
+        )
+                .andExpect(status().isOk());
+
+        Tag tag = tagRepository.findByTitle(tagForm.getTagTitle());
+        assertNotNull(tag);
+
+        Account hoseok = accountRepository.findByNickname("hoseok");
+        assertTrue(hoseok.getTags().contains(tag) );
+    }
+
+    @Test
+    @DisplayName("테그제거 성공")
+    @WithAccount("hoseok")
+    public void removeTag() throws Exception {
+
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("spring");
+
+        Account account = accountRepository.findByNickname("hoseok");
+        Tag tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
+
+        accountService.addTag(account, tag);
+        assertTrue(account.getTags().contains(tag) );
+
+        mockMvc.perform(post(SettingsController.SETTING_TAGS_URL+"/remove")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(tagForm))
+                .with(csrf())
+        )
+                .andExpect(status().isOk());
+
+        assertFalse(account.getTags().contains(tag) );
     }
 
     @DisplayName("프로필 수정 성공")
