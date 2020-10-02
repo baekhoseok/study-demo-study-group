@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import study.studygroup.WithAccount;
 import study.studygroup.domain.Account;
+import study.studygroup.mail.EmailMessage;
+import study.studygroup.mail.EmailService;
 import study.studygroup.settings.SettingsController;
 
 import javax.persistence.EntityManager;
@@ -46,7 +48,7 @@ class AccountControllerTest {
     private EntityManager em;
 
     @MockBean
-    JavaMailSender javaMailSender;
+    EmailService emailService;
 
     @DisplayName("회원 가입 화면 보이는지 테스트")
     @Test
@@ -97,7 +99,7 @@ class AccountControllerTest {
         assertNotEquals(account.getPassword(), password);
         assertThat(accountRepository.existsByEmail(email)).isTrue();
         assertNotNull(account.getEmailCheckToken());
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        then(emailService).should().sendEmail(any(EmailMessage.class));
     }
 
     @DisplayName("인증 메일 확인 - 입력값 오류")

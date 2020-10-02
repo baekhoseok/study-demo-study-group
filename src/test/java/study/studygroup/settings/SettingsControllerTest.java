@@ -117,7 +117,7 @@ class SettingsControllerTest {
                 .andExpect(view().name(SettingsController.SETTING_TAGS_VIEW_NAME))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("tags"))
-                .andExpect(model().attributeExists("whitelist "));
+                .andExpect(model().attributeExists("whitelist"));
     }
 
     @Test
