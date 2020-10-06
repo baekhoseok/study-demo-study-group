@@ -20,6 +20,7 @@ import study.studygroup.settings.form.*;
 import study.studygroup.settings.validator.NicknameValidator;
 import study.studygroup.settings.validator.PasswordFormValidator;
 import study.studygroup.tag.TagRepository;
+import study.studygroup.tag.TagService;
 import study.studygroup.zone.ZoneRepository;
 
 import javax.validation.Valid;
@@ -52,7 +53,7 @@ public class SettingsController {
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
     private final ZoneRepository zoneRepository;
-
+    private final TagService tagService;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
@@ -65,7 +66,7 @@ public class SettingsController {
     }
 
     @GetMapping(SETTING_ZONES_URL)
-    public String updateZonesFomr(@CurrentUser Account account, Model model) throws JsonProcessingException {
+    public String updateZonesForm(@CurrentUser Account account, Model model) throws JsonProcessingException {
 
         List<Zone> allZones = zoneRepository.findAll();
         Set<Zone> zones = accountService.getZones(account);
@@ -119,14 +120,8 @@ public class SettingsController {
     @ResponseBody
     public ResponseEntity addTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
-
-        Tag tag = tagRepository.findByTitle(title);
-        if (tag == null) {
-            tag = tagRepository.save(Tag.builder().title(title).build());
-        }
-
+        Tag tag = tagService.findOrCreateNew(title);
         accountService.addTag(account, tag);
-
         return ResponseEntity.ok().build();
     }
 
