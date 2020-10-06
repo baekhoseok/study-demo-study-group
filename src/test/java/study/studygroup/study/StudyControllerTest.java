@@ -41,17 +41,37 @@ class StudyControllerTest {
 
 
     @Test
+    @DisplayName("스터디 가입")
+    @WithAccount("hoseok")
+    public void joinStudy() throws Exception {
+
+        Study study = createAnotherStudy();
+
+        mockMvc.perform(get("/study/"+study.getPath()+"/join"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/"+study.getPath()+"/members"));
+    }
+
+    @Test
+    @DisplayName("스터디 가입")
+    @WithAccount("hoseok")
+    public void leaveStudy() throws Exception {
+
+        Study study = createAnotherStudy();
+        Account account = accountRepository.findByNickname("hoseok");
+        study.getMembers().add(account);
+
+        mockMvc.perform(get("/study/"+study.getPath()+"/leave"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/"+study.getPath()+"/members"));
+    }
+
+    @Test
     @DisplayName("스터디 VIEW")
     @WithAccount("hoseok")
     public void viewStudy() throws Exception {
 
-        String path = "test-path";
-        Account account = accountRepository.findByNickname("hoseok");
-        StudyForm form = StudyForm.builder().path(path).title("ssfdfsdf").shortDescription("1assdafasdf").fullDescription("asdfasdfasdfas").build();
-        Study newStudy = modelMapper.map(form, Study.class);
-        newStudy.addManager(account);
-        newStudy.addMember(account);
-        studyRepository.save(newStudy);
+        createNewStudy();
 
         mockMvc.perform(get("/study/test-path"))
                 .andExpect(status().isOk())
@@ -59,6 +79,8 @@ class StudyControllerTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("study"));
     }
+
+
 
     @Test
     @DisplayName("스터디 생성 폼")
@@ -92,8 +114,6 @@ class StudyControllerTest {
         Study study = studyRepository.findByTitle("spring 공부");
 
         assertThat(study.getManagers().size()).isEqualTo(1);
-        assertThat(study.getMembers().size()).isEqualTo(1);
-        assertTrue(study.getMembers().contains(account));
         assertTrue(study.getManagers().contains(account));
     }
 
@@ -119,5 +139,29 @@ class StudyControllerTest {
                 .andExpect(view().name(StudyController.STUDY_NEW_VIEW_NAME))
                 .andExpect(model().attributeExists("account"));
 
+    }
+
+    private Study createNewStudy() {
+        String path = "test-path";
+        Account account = accountRepository.findByNickname("hoseok");
+        StudyForm form = StudyForm.builder().path(path).title("ssfdfsdf").shortDescription("1assdafasdf").fullDescription("asdfasdfasdfas").build();
+        Study newStudy = modelMapper.map(form, Study.class);
+        newStudy.addManager(account);
+        studyRepository.save(newStudy);
+        return newStudy;
+    }
+
+    private Study createAnotherStudy() {
+        String path = "new-path";
+        Account account = accountRepository.save(Account.builder().nickname("paul").email("paul@naver.com").build());
+        StudyForm form = StudyForm.builder().path(path).title("ssfdfsdf").shortDescription("1assdafasdf").fullDescription("asdfasdfasdfas").build();
+        Study newStudy = modelMapper.map(form, Study.class);
+        newStudy.addManager(account);
+        studyRepository.save(newStudy);
+        return newStudy;
+    }
+
+    private Account createNewAccount() {
+        return accountRepository.save(Account.builder().nickname("paul").email("paul@naver.com").build());
     }
 }

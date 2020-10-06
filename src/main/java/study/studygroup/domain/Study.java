@@ -22,7 +22,9 @@ public class Study {
     @ManyToMany
     private Set<Account> managers = new HashSet<>();
 
-    @ManyToMany
+    // TODO LAZY로 했을때 fragments.html -> study-info -> isJoinable 에서
+    // "Large Objects may not be used in auto-commit mode" 오류 남
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Account> members = new HashSet<>();
 
     @Column(unique = true)

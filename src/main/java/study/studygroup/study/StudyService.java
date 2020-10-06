@@ -34,7 +34,6 @@ public class StudyService {
 
         Study study = modelMapper.map(studyForm, Study.class);
         study.addManager(account);
-        study.addMember(account);
 
         studyRepository.save(study);
 
@@ -110,5 +109,73 @@ public class StudyService {
         checkIfExistingStudy(path, study);
         checkIfManager(account, study);
         return study;
+    }
+
+    public void publish(Account account, Study study) {
+        // TODO checkIfManager
+        checkIfManager(account, study);
+        study.publish();
+    }
+
+    public void close(Account account, Study study) {
+        // TODO checkIfManager
+        checkIfManager(account, study);
+        study.close();
+    }
+
+    public Study getStudyToUpdateStatus(Account account, String path) {
+        Study study = studyRepository.findStudyWithManagersByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+    public void startRecruit(Account account, Study study) {
+        study.startRecruit();
+    }
+
+    public void stopRecruit(Account account, Study study) {
+        study.stopRecruit();
+    }
+
+    public boolean isValidPath(String path) {
+        if (!path.matches(StudyForm.VALID_PATH_PATTERN)) {
+            return false;
+        }
+        return !studyRepository.existsByPath(path);
+    }
+
+    public void updatePath(Study study, String path) {
+        study.setPath(path);
+    }
+
+    public void updateTitle(Study study, String newTitle) {
+        study.setTitle(newTitle);
+    }
+
+    public boolean isValidTitle(String newTitle) {
+
+        return newTitle.length() <= 50;
+    }
+
+    public void remove(Study study) {
+        if (!study.isRemovable()) {
+            throw new IllegalArgumentException("스터디를 삭제할 수 없습니다.");
+        }
+        studyRepository.delete(study);
+    }
+
+    public void addMember(Study study, Account account) {
+        if (study.getMembers().contains(account)) {
+            throw new IllegalArgumentException("스터디에 가입할 수 없습니다.");
+        }
+        study.getMembers().add(account);
+    }
+
+    public void removeMember(Study study, Account account) {
+        if (!study.getMembers().contains(account)) {
+            throw new IllegalArgumentException("스터디에 탈퇴할 수 없습니다.");
+        }
+        study.getMembers().remove(account);
     }
 }
