@@ -26,4 +26,7 @@ public interface StudyRepository extends JpaRepository<Study, Long> {
 
     boolean existsByTitle(String title);
 
+    Study findSimpleStudyByPath(String path);
+
+    Study findStudyOnlyByPath(String path);
 }

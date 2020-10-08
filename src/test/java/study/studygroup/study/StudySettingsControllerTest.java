@@ -34,16 +34,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class StudySettingsControllerTest {
+public class StudySettingsControllerTest {
 
-    @Autowired StudyController studyController;
-    @Autowired MockMvc mockMvc;
-    @Autowired AccountRepository accountRepository;
-    @Autowired StudyRepository studyRepository;
-    @Autowired ModelMapper modelMapper;
-    @Autowired ObjectMapper objectMapper;
-    @Autowired TagRepository tagRepository;
-    @Autowired ZoneRepository zoneRepository;
+    @Autowired protected StudyController studyController;
+    @Autowired protected MockMvc mockMvc;
+    @Autowired protected AccountRepository accountRepository;
+    @Autowired protected StudyRepository studyRepository;
+    @Autowired protected ModelMapper modelMapper;
+    @Autowired protected ObjectMapper objectMapper;
+    @Autowired protected TagRepository tagRepository;
+    @Autowired protected ZoneRepository zoneRepository;
 
     public String path = "test-study";
 

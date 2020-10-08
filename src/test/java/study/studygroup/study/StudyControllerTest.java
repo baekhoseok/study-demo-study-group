@@ -29,14 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class StudyControllerTest {
+public class StudyControllerTest {
 
-    @Autowired StudyController studyController;
-    @Autowired MockMvc mockMvc;
-    @Autowired AccountRepository accountRepository;
-    @Autowired StudyRepository studyRepository;
-    @Autowired ModelMapper modelMapper;
-    @Autowired ObjectMapper objectMapper;
+    @Autowired protected StudyController studyController;
+    @Autowired protected MockMvc mockMvc;
+    @Autowired protected AccountRepository accountRepository;
+    @Autowired protected StudyRepository studyRepository;
+    @Autowired protected ModelMapper modelMapper;
+    @Autowired protected ObjectMapper objectMapper;
 
 
 
@@ -141,7 +141,7 @@ class StudyControllerTest {
 
     }
 
-    private Study createNewStudy() {
+    protected Study createNewStudy() {
         String path = "test-path";
         Account account = accountRepository.findByNickname("hoseok");
         StudyForm form = StudyForm.builder().path(path).title("ssfdfsdf").shortDescription("1assdafasdf").fullDescription("asdfasdfasdfas").build();
@@ -151,7 +151,7 @@ class StudyControllerTest {
         return newStudy;
     }
 
-    private Study createAnotherStudy() {
+    protected Study createAnotherStudy() {
         String path = "new-path";
         Account account = accountRepository.save(Account.builder().nickname("paul").email("paul@naver.com").build());
         StudyForm form = StudyForm.builder().path(path).title("ssfdfsdf").shortDescription("1assdafasdf").fullDescription("asdfasdfasdfas").build();
@@ -161,7 +161,7 @@ class StudyControllerTest {
         return newStudy;
     }
 
-    private Account createNewAccount() {
+    protected Account createNewAccount() {
         return accountRepository.save(Account.builder().nickname("paul").email("paul@naver.com").build());
     }
 }
